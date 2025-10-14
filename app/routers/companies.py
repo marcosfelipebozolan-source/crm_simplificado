@@ -21,13 +21,24 @@ def create_company(data: CompanyCreate, session: Session = Depends(get_session))
 @router.get("/", response_model=List[CompanyRead])
 def list_companies(
     session: Session = Depends(get_session),
-    q: Optional[str] = Query(None, description="Busca por nome"),
+    q: Optional[str] = Query(None, description="Busca por nome (contains)"),
+    order_by: str = Query("id", description="Campos: id|name"),
+    desc: bool = Query(False, description="Ordenação descrescente"),
     limit: int = Query(50, ge=1, le=200),
     offset: int = Query(0, ge=0),
 ):
     stmt = select(Company)
     if q:
         stmt = stmt.where(Company.name.contains(q))
+
+    # ordenação simples
+    order_map = {
+        "id": Company.id,
+        "name": Company.name,
+    }
+    order_col = order_map.get(order_by, Company.id)
+    stmt = stmt.order_by(order_col.desc() if desc else order_col.asc())
+
     stmt = stmt.offset(offset).limit(limit)
     return session.exec(stmt).all()
 
