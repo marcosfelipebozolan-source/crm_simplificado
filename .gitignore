@@ -1,0 +1,22 @@
+# Byte-compiled / cache
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual env
+.venv/
+
+# Editor/OS
+.vscode/
+*.code-workspace
+.DS_Store
+Thumbs.db
+
+# Local DB / secrets / build
+crm.db
+*.sqlite
+.env
+.env.*
+dist/
+build/
