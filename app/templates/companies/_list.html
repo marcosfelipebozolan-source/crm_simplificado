@@ -1,0 +1,48 @@
+{% set total_pages = (total // size) + (1 if total % size else 0) %}
+
+<p><small>{{ total }} registro(s) • página {{ page }} de {{ total_pages }}</small></p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="width:70px;">ID</th>
+      <th>Nome</th>
+      <th>Email</th>
+      <th>Telefone</th>
+      <th>Site</th>
+      <th style="width:110px;">Ações</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for c in companies %}
+    <tr>
+      <td>{{ c.id }}</td>
+      <td>{{ c.name }}</td>
+      <td>{{ c.email or '' }}</td>
+      <td>{{ c.phone or '' }}</td>
+      <td>{{ c.website or '' }}</td>
+      <td>
+        <button class="secondary outline"
+                hx-delete="/ui/companies/{{ c.id }}"
+                hx-target="#list"
+                hx-include="[name='q'],[name='order_by'],[name='desc'],[name='page'],[name='size']"
+                hx-swap="innerHTML">
+          Excluir
+        </button>
+      </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="6"><em>Nenhuma empresa encontrada.</em></td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<nav aria-label="Paginação" class="grid">
+  <button {% if not has_prev %}disabled{% endif %}
+          hx-get="/ui/companies?page={{ page - 1 }}&size={{ size }}&order_by={{ order_by }}&desc={{ 'true' if desc else 'false' }}&q={{ q|urlencode }}"
+          hx-target="#list">◀ Anterior</button>
+
+  <button {% if not has_next %}disabled{% endif %}
+          hx-get="/ui/companies?page={{ page + 1 }}&size={{ size }}&order_by={{ order_by }}&desc={{ 'true' if desc else 'false' }}&q={{ q|urlencode }}"
+          hx-target="#list">Próxima ▶</button>
+</nav>

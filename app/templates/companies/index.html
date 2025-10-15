@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Empresas · CRM{% endblock %}
+
+{% block content %}
+  <h1>Empresas</h1>
+
+  <form role="search" class="grid" onsubmit="return false;">
+    <input type="search" name="q" placeholder="Buscar por nome..." value="{{ q }}"
+           hx-get="/ui/companies"
+           hx-target="#list"
+           hx-include="[name='q']"
+           hx-trigger="keyup changed delay:300ms">
+    <select name="order_by"
+            hx-get="/ui/companies" hx-target="#list" hx-include="[name='q'],[name='order_by'],[name='desc'],[name='page'],[name='size']">
+      <option value="id"   {{ 'selected' if order_by=='id' else '' }}>Ordenar por ID</option>
+      <option value="name" {{ 'selected' if order_by=='name' else '' }}>Ordenar por Nome</option>
+    </select>
+    <label style="display:flex; align-items:center; gap:.5rem;">
+      <input type="checkbox" name="desc" value="true" {% if desc %}checked{% endif %}
+             hx-get="/ui/companies" hx-target="#list" hx-include="[name='q'],[name='order_by'],[name='desc'],[name='page'],[name='size']">
+      Desc
+    </label>
+    <input type="hidden" name="page" value="{{ page }}">
+    <input type="hidden" name="size" value="{{ size }}">
+  </form>
+
+  <details>
+    <summary>Nova empresa</summary>
+    <form class="grid"
+          hx-post="/ui/companies"
+          hx-target="#list"
+          hx-swap="innerHTML">
+      <input name="name" placeholder="Nome *" required>
+      <input name="email" type="email" placeholder="email@dominio.com">
+      <input name="phone" placeholder="Telefone">
+      <input name="website" placeholder="Site">
+      <textarea name="notes" placeholder="Observações"></textarea>
+      <button type="submit">Criar</button>
+    </form>
+  </details>
+
+  <div id="list">
+    {% include "companies/_list.html" %}
+  </div>
+{% endblock %}

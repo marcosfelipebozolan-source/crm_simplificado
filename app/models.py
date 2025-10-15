@@ -1,6 +1,6 @@
-from __future__ import annotations
-from typing import Optional, List
+from typing import Optional
 from datetime import date
+
 from pydantic import EmailStr, field_validator
 from sqlmodel import SQLModel, Field, Relationship
 
@@ -19,15 +19,17 @@ STAGES = [
 
 class CompanyBase(SQLModel):
     name: str
-    email: Optional[EmailStr] = None  # valida e-mail
+    email: Optional[EmailStr] = None
     phone: Optional[str] = None
     website: Optional[str] = None
     notes: Optional[str] = None
 
 class Company(CompanyBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
-    contacts: List["Contact"] = Relationship(back_populates="company")
-    deals: List["Deal"] = Relationship(back_populates="company")
+    # ⚠️ Removemos por enquanto as coleções para evitar o bug de tipagem:
+    # contacts: List["Contact"] = Relationship(back_populates="company")
+    # deals:    List["Deal"]    = Relationship(back_populates="company")
+    pass
 
 class CompanyCreate(CompanyBase):
     pass
@@ -39,14 +41,15 @@ class CompanyRead(CompanyBase):
 
 class ContactBase(SQLModel):
     name: str
-    email: Optional[EmailStr] = None  # valida e-mail
+    email: Optional[EmailStr] = None
     phone: Optional[str] = None
     role: Optional[str] = None
 
 class Contact(ContactBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     company_id: int = Field(foreign_key="company.id")
-    company: Company = Relationship(back_populates="contacts")
+    # Relação singular (lado filho) funciona bem e já atende a API/CRUD
+    company: "Company" = Relationship()
 
 class ContactCreate(ContactBase):
     company_id: int
@@ -59,10 +62,10 @@ class ContactRead(ContactBase):
 
 class DealBase(SQLModel):
     title: str
-    value: float = Field(default=0.0, ge=0)             # não negativo
+    value: float = Field(default=0.0, ge=0)
     stage: str = Field(default="prospeccao")
-    probability: int = Field(default=0, ge=0, le=100)   # 0..100
-    expected_close_date: Optional[date] = None          # data ISO (YYYY-MM-DD)
+    probability: int = Field(default=0, ge=0, le=100)
+    expected_close_date: Optional[date] = None
     owner: Optional[str] = None
     notes: Optional[str] = None
 
@@ -76,7 +79,8 @@ class DealBase(SQLModel):
 class Deal(DealBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     company_id: int = Field(foreign_key="company.id")
-    company: Company = Relationship(back_populates="deals")
+    # Relação singular (lado filho)
+    company: "Company" = Relationship()
 
 class DealCreate(DealBase):
     company_id: int

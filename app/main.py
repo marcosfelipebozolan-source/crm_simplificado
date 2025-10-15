@@ -3,6 +3,7 @@ from .database import create_db_and_tables
 from .routers.companies import router as companies_router
 from .routers.contacts  import router as contacts_router
 from .routers.deals     import router as deals_router
+from .routers.ui        import router as ui_router
 
 app = FastAPI(title="CRM Simplificado", version="0.1.0")
 
@@ -17,3 +18,4 @@ def root():
 app.include_router(companies_router)
 app.include_router(contacts_router)
 app.include_router(deals_router)
+app.include_router(ui_router)

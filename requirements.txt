@@ -4,3 +4,4 @@ sqlmodel
 pydantic-settings
 python-multipart
 email-validator
+jinja2
